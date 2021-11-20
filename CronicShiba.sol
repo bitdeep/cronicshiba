@@ -5,21 +5,22 @@
    
    Continuing the legacy of crypto's favourite dog on the Cronos network. 
    
-   website: https://cronicshiba.com/
-   telegram: https://t.me/cronicshiba
-   twitter: https://twitter.com/CronicShiba
+   Website:     https://cronicshiba.com/
+   Telegram:    https://t.me/cronicshiba
+   Twitter:     https://twitter.com/CronicShiba
    
  */
 
-pragma solidity ^0.8.4;
-
+pragma solidity ^0.6.12;
+// SPDX-License-Identifier: UNLICENSED
 abstract contract Context {
     function _msgSender() internal view virtual returns (address payable) {
         return payable(msg.sender);
     }
 
     function _msgData() internal view virtual returns (bytes memory) {
-        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        this;
+        // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
         return msg.data;
     }
 }
@@ -28,14 +29,20 @@ abstract contract Context {
 interface IERC20 {
 
     function totalSupply() external view returns (uint256);
+
     function balanceOf(address account) external view returns (uint256);
+
     function transfer(address recipient, uint256 amount) external returns (bool);
+
     function allowance(address owner, address spender) external view returns (uint256);
+
     function approve(address spender, uint256 amount) external returns (bool);
+
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
-    
+
 }
 
 library SafeMath {
@@ -101,7 +108,7 @@ library Address {
         bytes32 codehash;
         bytes32 accountHash = 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470;
         // solhint-disable-next-line no-inline-assembly
-        assembly { codehash := extcodehash(account) }
+        assembly {codehash := extcodehash(account)}
         return (codehash != accountHash && codehash != 0x0);
     }
 
@@ -109,13 +116,13 @@ library Address {
         require(address(this).balance >= amount, "Address: insufficient balance");
 
         // solhint-disable-next-line avoid-low-level-calls, avoid-call-value
-        (bool success, ) = recipient.call{ value: amount }("");
+        (bool success,) = recipient.call{value : amount}("");
         require(success, "Address: unable to send value, recipient may have reverted");
     }
 
 
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-      return functionCall(target, data, "Address: low-level call failed");
+        return functionCall(target, data, "Address: low-level call failed");
     }
 
     function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
@@ -134,11 +141,11 @@ library Address {
     function _functionCallWithValue(address target, bytes memory data, uint256 weiValue, string memory errorMessage) private returns (bytes memory) {
         require(isContract(target), "Address: call to non-contract");
 
-        (bool success, bytes memory returndata) = target.call{ value: weiValue }(data);
+        (bool success, bytes memory returndata) = target.call{value : weiValue}(data);
         if (success) {
             return returndata;
         } else {
-            
+
             if (returndata.length > 0) {
                 assembly {
                     let returndata_size := mload(returndata)
@@ -158,7 +165,7 @@ contract Ownable is Context {
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-    constructor () {
+    constructor () public {
         address msgSender = _msgSender();
         _owner = msgSender;
         emit OwnershipTransferred(address(0), msgSender);
@@ -166,13 +173,13 @@ contract Ownable is Context {
 
     function owner() public view returns (address) {
         return _owner;
-    }   
-    
+    }
+
     modifier onlyOwner() {
         require(_owner == _msgSender(), "Ownable: caller is not the owner");
         _;
     }
-    
+
     function renounceOwnership() public virtual onlyOwner {
         emit OwnershipTransferred(_owner, address(0));
         _owner = address(0);
@@ -191,15 +198,19 @@ interface IUniswapV2Factory {
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
     function feeTo() external view returns (address);
+
     function feeToSetter() external view returns (address);
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);
+
     function allPairs(uint) external view returns (address pair);
+
     function allPairsLength() external view returns (uint);
 
     function createPair(address tokenA, address tokenB) external returns (address pair);
 
     function setFeeTo(address) external;
+
     function setFeeToSetter(address) external;
 }
 
@@ -211,22 +222,31 @@ interface IUniswapV2Pair {
     event Transfer(address indexed from, address indexed to, uint value);
 
     function name() external pure returns (string memory);
+
     function symbol() external pure returns (string memory);
+
     function decimals() external pure returns (uint8);
+
     function totalSupply() external view returns (uint);
+
     function balanceOf(address owner) external view returns (uint);
+
     function allowance(address owner, address spender) external view returns (uint);
 
     function approve(address spender, uint value) external returns (bool);
+
     function transfer(address to, uint value) external returns (bool);
+
     function transferFrom(address from, address to, uint value) external returns (bool);
 
     function DOMAIN_SEPARATOR() external view returns (bytes32);
+
     function PERMIT_TYPEHASH() external pure returns (bytes32);
+
     function nonces(address owner) external view returns (uint);
 
     function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
-    
+
     event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
     event Swap(
         address indexed sender,
@@ -239,17 +259,27 @@ interface IUniswapV2Pair {
     event Sync(uint112 reserve0, uint112 reserve1);
 
     function MINIMUM_LIQUIDITY() external pure returns (uint);
+
     function factory() external view returns (address);
+
     function token0() external view returns (address);
+
     function token1() external view returns (address);
+
     function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+
     function price0CumulativeLast() external view returns (uint);
+
     function price1CumulativeLast() external view returns (uint);
+
     function kLast() external view returns (uint);
 
     function burn(address to) external returns (uint amount0, uint amount1);
+
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;
+
     function skim(address to) external;
+
     function sync() external;
 
     function initialize(address, address) external;
@@ -259,6 +289,7 @@ interface IUniswapV2Pair {
 
 interface IUniswapV2Router01 {
     function factory() external pure returns (address);
+
     function WETH() external pure returns (address);
 
     function addLiquidity(
@@ -271,6 +302,7 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint amountA, uint amountB, uint liquidity);
+
     function addLiquidityETH(
         address token,
         uint amountTokenDesired,
@@ -279,6 +311,7 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
+
     function removeLiquidity(
         address tokenA,
         address tokenB,
@@ -288,6 +321,7 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint amountA, uint amountB);
+
     function removeLiquidityETH(
         address token,
         uint liquidity,
@@ -296,6 +330,7 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint amountToken, uint amountETH);
+
     function removeLiquidityWithPermit(
         address tokenA,
         address tokenB,
@@ -306,6 +341,7 @@ interface IUniswapV2Router01 {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external returns (uint amountA, uint amountB);
+
     function removeLiquidityETHWithPermit(
         address token,
         uint liquidity,
@@ -315,6 +351,7 @@ interface IUniswapV2Router01 {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external returns (uint amountToken, uint amountETH);
+
     function swapExactTokensForTokens(
         uint amountIn,
         uint amountOutMin,
@@ -322,6 +359,7 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint[] memory amounts);
+
     function swapTokensForExactTokens(
         uint amountOut,
         uint amountInMax,
@@ -329,25 +367,33 @@ interface IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint[] memory amounts);
+
     function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
-        external
-        payable
-        returns (uint[] memory amounts);
+    external
+    payable
+    returns (uint[] memory amounts);
+
     function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
-        external
-        returns (uint[] memory amounts);
+    external
+    returns (uint[] memory amounts);
+
     function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
-        external
-        returns (uint[] memory amounts);
+    external
+    returns (uint[] memory amounts);
+
     function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
-        external
-        payable
-        returns (uint[] memory amounts);
+    external
+    payable
+    returns (uint[] memory amounts);
 
     function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);
+
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);
+
     function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) external pure returns (uint amountIn);
+
     function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);
+
     function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);
 }
 
@@ -364,6 +410,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
         address to,
         uint deadline
     ) external returns (uint amountETH);
+
     function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(
         address token,
         uint liquidity,
@@ -381,12 +428,14 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
         address to,
         uint deadline
     ) external;
+
     function swapExactETHForTokensSupportingFeeOnTransferTokens(
         uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
     ) external payable;
+
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint amountIn,
         uint amountOutMin,
@@ -396,24 +445,24 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     ) external;
 }
 
-contract CRONICSHIBA is Context, IERC20, Ownable {
+contract CronicShiba is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
-    
+
     address payable public marketingAddress = payable(0x40da1dd681eC6175C3BCFe1641CD2826A99EBdD8); // Marketing Address
     address public immutable deadAddress = 0x000000000000000000000000000000000000dEaD;
-    mapping (address => uint256) private _rOwned;
-    mapping (address => uint256) private _tOwned;
-    mapping (address => mapping (address => uint256)) private _allowances;
-    mapping (address => bool) private _isSniper;
+    mapping(address => uint256) private _rOwned;
+    mapping(address => uint256) private _tOwned;
+    mapping(address => mapping(address => uint256)) private _allowances;
+    mapping(address => bool) private _isSniper;
     address[] private _confirmedSnipers;
 
-    mapping (address => bool) private _isExcludedFromFee;
-    mapping (address => bool) private _isExcluded;
+    mapping(address => bool) private _isExcludedFromFee;
+    mapping(address => bool) private _isExcluded;
     address[] private _excluded;
-   
+
     uint256 private constant MAX = ~uint256(0);
-    uint256 private _tTotal = 10000000000000* 10**9;
+    uint256 private _tTotal = 10000000000000 * 10 ** 9;
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
 
@@ -422,61 +471,51 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
     uint8 private _decimals = 9;
 
 
-    uint256 public _taxFee;
+    uint256 public _taxFee = 3; // 3%
     uint256 private _previousTaxFee = _taxFee;
-    
-    uint256 public _liquidityFee;
+
+    uint256 public _liquidityFee = 6; // 6%
     uint256 private _previousLiquidityFee = _liquidityFee;
-    
+
     uint256 private _feeRate = 2;
     uint256 launchTime;
 
     IUniswapV2Router02 public uniswapV2Router;
     address public uniswapV2Pair;
-    
+
     bool inSwapAndLiquify;
-    
+
     bool tradingOpen = false;
-    
+
     event SwapETHForTokens(
         uint256 amountIn,
         address[] path
     );
-    
+
     event SwapTokensForETH(
         uint256 amountIn,
         address[] path
     );
-    
+
     modifier lockTheSwap {
         inSwapAndLiquify = true;
         _;
         inSwapAndLiquify = false;
     }
-    
 
-    constructor () {
-        _rOwned[_msgSender()] = _rTotal;
+
+    constructor (address treasure, address router) public {
+        _rOwned[msg.sender] = _rTotal;
         emit Transfer(address(0), _msgSender(), _tTotal);
-    }
-    
-    function initContract() external onlyOwner() {
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xeC0A7a0C2439E8Cb67b992b12ecd020Ea943c7Be);
-        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
-        .createPair(address(this), _uniswapV2Router.WETH());
-
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(router);
+        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory()).createPair(address(this), _uniswapV2Router.WETH());
         uniswapV2Router = _uniswapV2Router;
-
-        _isExcludedFromFee[owner()] = true;
+        _isExcludedFromFee[msg.sender] = true;
+        _isExcludedFromFee[treasure] = true;
         _isExcludedFromFee[address(this)] = true;
-        
-        
-        marketingAddress = payable(0x40da1dd681eC6175C3BCFe1641CD2826A99EBdD8);
     }
-    
+
     function openTrading() external onlyOwner() {
-        _liquidityFee=7;
-        _taxFee=3;
         tradingOpen = true;
         launchTime = block.timestamp;
     }
@@ -539,9 +578,8 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
     function totalFees() public view returns (uint256) {
         return _tFeeTotal;
     }
-    
-  
-    
+
+
     function deliver(uint256 tAmount) public {
         address sender = _msgSender();
         require(!_isExcluded[sender], "Excluded addresses cannot call this function");
@@ -550,9 +588,9 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         _rTotal = _rTotal.sub(rAmount);
         _tFeeTotal = _tFeeTotal.add(tAmount);
     }
-  
 
-    function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns(uint256) {
+
+    function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns (uint256) {
         require(tAmount <= _tTotal, "Amount must be less than supply");
         if (!deductTransferFee) {
             (uint256 rAmount,,,,,) = _getValues(tAmount);
@@ -563,16 +601,16 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         }
     }
 
-    function tokenFromReflection(uint256 rAmount) public view returns(uint256) {
+    function tokenFromReflection(uint256 rAmount) public view returns (uint256) {
         require(rAmount <= _rTotal, "Amount must be less than total reflections");
-        uint256 currentRate =  _getRate();
+        uint256 currentRate = _getRate();
         return rAmount.div(currentRate);
     }
 
     function excludeFromReward(address account) public onlyOwner() {
 
         require(!_isExcluded[account], "Account is already excluded");
-        if(_rOwned[account] > 0) {
+        if (_rOwned[account] > 0) {
             _tOwned[account] = tokenFromReflection(_rOwned[account]);
         }
         _isExcluded[account] = true;
@@ -611,11 +649,12 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         require(!_isSniper[to], "You have no power here!");
         require(!_isSniper[msg.sender], "You have no power here!");
 
-       
+
         // buy
-        if(from == uniswapV2Pair && to != address(uniswapV2Router) && !_isExcludedFromFee[to]) {
+
+        if (from == uniswapV2Pair && to != address(uniswapV2Router) && !_isExcludedFromFee[to]) {
             require(tradingOpen, "Trading not yet enabled.");
-            
+
             //antibot
             if (block.timestamp == launchTime) {
                 _isSniper[to] = true;
@@ -625,46 +664,56 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
 
 
         uint256 contractTokenBalance = balanceOf(address(this));
-        
         //sell
-       
-         
         if (!inSwapAndLiquify && tradingOpen && to == uniswapV2Pair) {
-            if(contractTokenBalance > 0) {
-                if(contractTokenBalance > balanceOf(uniswapV2Pair).mul(_feeRate).div(100)) {
+            if (contractTokenBalance > 0) {
+                if (contractTokenBalance > balanceOf(uniswapV2Pair).mul(_feeRate).div(100)) {
                     contractTokenBalance = balanceOf(uniswapV2Pair).mul(_feeRate).div(100);
                 }
-                swapTokens(contractTokenBalance);    
+                swapTokens(contractTokenBalance);
             }
-          
+
         }
-        
+
         bool takeFee = false;
-        
+
         //take fee only on swaps
-        if ( (from==uniswapV2Pair || to==uniswapV2Pair) && !(_isExcludedFromFee[from] || _isExcludedFromFee[to]) ) {
+        if ((from == uniswapV2Pair || to == uniswapV2Pair) && !(_isExcludedFromFee[from] || _isExcludedFromFee[to])) {
             takeFee = true;
         }
-        
-        _tokenTransfer(from,to,amount,takeFee);
+        _tokenTransfer(from, to, amount, takeFee);
+
     }
+
+    function _isContract(address addr) internal view returns (bool) {
+        uint256 size;
+        assembly {
+            size := extcodesize(addr)
+        }
+        return size > 0;
+    }
+
+    event SwapTokens(uint256 contractTokenBalance, uint256 contractETHBalance);
 
     function swapTokens(uint256 contractTokenBalance) private lockTheSwap {
         swapTokensForEth(contractTokenBalance);
-        
+
         //Send to Marketing address
         uint256 contractETHBalance = address(this).balance;
-        if(contractETHBalance > 0) {
+        emit SwapTokens(contractTokenBalance, contractETHBalance);
+        if (contractETHBalance > 0) {
             sendETHToFee(address(this).balance);
         }
     }
-    
+
+    event SendETHToFee(uint256 amount);
+
     function sendETHToFee(uint256 amount) private {
         marketingAddress.transfer(amount);
+        emit SendETHToFee(amount);
     }
-    
 
-   
+
     function swapTokensForEth(uint256 tokenAmount) private {
         // generate the uniswap pair path of token -> weth
         address[] memory path = new address[](2);
@@ -681,17 +730,17 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
             address(this), // The contract
             block.timestamp
         );
-        
+
         emit SwapTokensForETH(tokenAmount, path);
     }
-    
+
 
     function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
         // approve token transfer to cover all possible scenarios
         _approve(address(this), address(uniswapV2Router), tokenAmount);
 
         // add the liquidity
-        uniswapV2Router.addLiquidityETH{value: ethAmount}(
+        uniswapV2Router.addLiquidityETH{value : ethAmount}(
             address(this),
             tokenAmount,
             0, // slippage is unavoidable
@@ -701,10 +750,10 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         );
     }
 
-    function _tokenTransfer(address sender, address recipient, uint256 amount,bool takeFee) private {
-        if(!takeFee)
+    function _tokenTransfer(address sender, address recipient, uint256 amount, bool takeFee) private {
+        if (!takeFee)
             removeAllFee();
-        
+
         if (_isExcluded[sender] && !_isExcluded[recipient]) {
             _transferFromExcluded(sender, recipient, amount);
         } else if (!_isExcluded[sender] && _isExcluded[recipient]) {
@@ -714,8 +763,8 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         } else {
             _transferStandard(sender, recipient, amount);
         }
-        
-        if(!takeFee)
+
+        if (!takeFee)
             restoreAllFee();
     }
 
@@ -732,7 +781,7 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity) = _getValues(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
         _tOwned[recipient] = _tOwned[recipient].add(tTransferAmount);
-        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);           
+        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
         _takeLiquidity(tLiquidity);
         _reflectFee(rFee, tFee);
         emit Transfer(sender, recipient, tTransferAmount);
@@ -742,7 +791,7 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         (uint256 rAmount, uint256 rTransferAmount, uint256 rFee, uint256 tTransferAmount, uint256 tFee, uint256 tLiquidity) = _getValues(tAmount);
         _tOwned[sender] = _tOwned[sender].sub(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
-        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);   
+        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
         _takeLiquidity(tLiquidity);
         _reflectFee(rFee, tFee);
         emit Transfer(sender, recipient, tTransferAmount);
@@ -753,7 +802,7 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         _tOwned[sender] = _tOwned[sender].sub(tAmount);
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
         _tOwned[recipient] = _tOwned[recipient].add(tTransferAmount);
-        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);        
+        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
         _takeLiquidity(tLiquidity);
         _reflectFee(rFee, tFee);
         emit Transfer(sender, recipient, tTransferAmount);
@@ -785,14 +834,14 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         return (rAmount, rTransferAmount, rFee);
     }
 
-    function _getRate() private view returns(uint256) {
+    function _getRate() private view returns (uint256) {
         (uint256 rSupply, uint256 tSupply) = _getCurrentSupply();
         return rSupply.div(tSupply);
     }
 
-    function _getCurrentSupply() private view returns(uint256, uint256) {
+    function _getCurrentSupply() private view returns (uint256, uint256) {
         uint256 rSupply = _rTotal;
-        uint256 tSupply = _tTotal;      
+        uint256 tSupply = _tTotal;
         for (uint256 i = 0; i < _excluded.length; i++) {
             if (_rOwned[_excluded[i]] > rSupply || _tOwned[_excluded[i]] > tSupply) return (_rTotal, _tTotal);
             rSupply = rSupply.sub(_rOwned[_excluded[i]]);
@@ -801,76 +850,76 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         if (rSupply < _rTotal.div(_tTotal)) return (_rTotal, _tTotal);
         return (rSupply, tSupply);
     }
-    
+
     function _takeLiquidity(uint256 tLiquidity) private {
-        uint256 currentRate =  _getRate();
+        uint256 currentRate = _getRate();
         uint256 rLiquidity = tLiquidity.mul(currentRate);
         _rOwned[address(this)] = _rOwned[address(this)].add(rLiquidity);
-        if(_isExcluded[address(this)])
+        if (_isExcluded[address(this)])
             _tOwned[address(this)] = _tOwned[address(this)].add(tLiquidity);
     }
-    
+
     function calculateTaxFee(uint256 _amount) private view returns (uint256) {
         return _amount.mul(_taxFee).div(
-            10**2
+            10 ** 2
         );
     }
-    
+
     function calculateLiquidityFee(uint256 _amount) private view returns (uint256) {
         return _amount.mul(_liquidityFee).div(
-            10**2
+            10 ** 2
         );
     }
-    
+
     function removeAllFee() private {
-        if(_taxFee == 0 && _liquidityFee == 0) return;
-        
+        if (_taxFee == 0 && _liquidityFee == 0) return;
+
         _previousTaxFee = _taxFee;
         _previousLiquidityFee = _liquidityFee;
-        
+
         _taxFee = 0;
         _liquidityFee = 0;
     }
-    
+
     function restoreAllFee() private {
         _taxFee = _previousTaxFee;
         _liquidityFee = _previousLiquidityFee;
     }
 
-    function isExcludedFromFee(address account) public view returns(bool) {
+    function isExcludedFromFee(address account) public view returns (bool) {
         return _isExcludedFromFee[account];
     }
-    
+
     function excludeFromFee(address account) public onlyOwner {
         _isExcludedFromFee[account] = true;
     }
-    
+
     function includeInFee(address account) public onlyOwner {
         _isExcludedFromFee[account] = false;
     }
-    
+
     function setTaxFeePercent(uint256 taxFee) external onlyOwner() {
         _taxFee = taxFee;
     }
-    
+
     function setLiquidityFeePercent(uint256 liquidityFee) external onlyOwner() {
         _liquidityFee = liquidityFee;
     }
-    
-    
+
+
     function setMarketingAddress(address _marketingAddress) external onlyOwner() {
         marketingAddress = payable(_marketingAddress);
     }
-   
-    
+
+
     function transferToAddressETH(address payable recipient, uint256 amount) private {
         recipient.transfer(amount);
     }
-    
+
     function isRemovedSniper(address account) public view returns (bool) {
         return _isSniper[account];
     }
-    
+
     function _removeSniper(address account) external onlyOwner() {
         require(account != 0xeC0A7a0C2439E8Cb67b992b12ecd020Ea943c7Be, 'We can not blacklist Router');
         require(!_isSniper[account], "Account is already blacklisted");
@@ -890,14 +939,19 @@ contract CRONICSHIBA is Context, IERC20, Ownable {
         }
     }
 
-    
-    
-     function setFeeRate(uint256 rate) external  onlyOwner() {
+
+    function setFeeRate(uint256 rate) external onlyOwner() {
         _feeRate = rate;
     }
 
-    
-   
-     //to recieve ETH from uniswapV2Router when swaping
+    function getBlockTime() public view returns (uint256) {
+        return block.timestamp;
+    }
+
+    function emergencyWithdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+    }
+
+    //to recieve ETH from uniswapV2Router when swaping
     receive() external payable {}
 }
